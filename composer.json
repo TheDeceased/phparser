@@ -1,0 +1,19 @@
+{
+    "name": "the-deceased/phparser",
+    "authors": [
+        {
+            "name": "The Deceased",
+            "email": "deceased.ag@yandex.ru"
+        }
+    ],
+    "autoload" : {
+        "psr-4": {"TheDeceased\\PHParser\\": "src/"}
+    },
+    "bin": [
+        "phparser"
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "symfony/filesystem": "^4.0@dev"
+    }
+}
