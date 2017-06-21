@@ -7,7 +7,7 @@ use TheDeceased\PHParser\Parser;
 
 class ParseCommand
 {
-    const OPTIONS = "dcoh";
+    const OPTIONS = "dcohi";
     const ARGUMENTS = [];
 
     private $arguments;
@@ -42,7 +42,7 @@ class ParseCommand
             echo "{$this->input} is a directory. To parse a directory use -d option" . PHP_EOL;
             return null;
         }
-        if ($this->mustWriteToFile() && $this->cleanupNeeded()) {
+        if ($this->mustWriteToFile() && $this->cleanupNeeded() && !$this->isInplace()) {
             $this->fs->remove($this->out);
         }
         if (is_dir($this->input)) {
@@ -59,7 +59,7 @@ class ParseCommand
         switch (true) {
             case $this->mustWriteToFile():
                 $outPath = $this->outPath($input, $inputDir);
-                if (!$this->isOverride() && $this->fs->exists($outPath)) {
+                if (!$this->mustRewriteFile() && $this->fs->exists($outPath)) {
                     throw new \RuntimeException(
                         "File {$outPath} already exists. If you want to override current content use -o key" . PHP_EOL
                     );
@@ -92,6 +92,9 @@ class ParseCommand
 
     private function outPath($input, $inputDir)
     {
+        if ($this->isInplace()) {
+            return $input;
+        }
         if (!$this->isDirectoryParsed()) {
             return $this->out;
         }
@@ -117,12 +120,22 @@ class ParseCommand
         return isset($this->options['d']);
     }
 
+    private function mustRewriteFile()
+    {
+        return $this->isOverride() || $this->isInplace();
+    }
+
     /**
      * @return bool
      */
     private function isOverride()
     {
         return isset($this->options['o']);
+    }
+
+    private function isInplace()
+    {
+        return isset($this->options['i']);
     }
 
     private function cleanupNeeded()
@@ -137,7 +150,7 @@ class ParseCommand
 
     private function mustWriteToFile()
     {
-        return !empty($this->out);
+        return !empty($this->out) || $this->isInplace();
     }
 
     private function drawHelp()
@@ -149,6 +162,7 @@ class ParseCommand
         echo "-d - to recursively parse directory, not a file". PHP_EOL;
         echo "-o - to override file content if it already exists". PHP_EOL;
         echo "-c - to remove target directory before start". PHP_EOL;
+        echo "-i - to replace file content inplace". PHP_EOL;
         return null;
     }
 }
