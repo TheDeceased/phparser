@@ -83,7 +83,7 @@ class ParseCommand
         );
         foreach ($iterator as $item) {
             if (!$item->isDir()) {
-                if (strtolower(pathinfo($item->getPathname(), PATHINFO_EXTENSION)) != 'php') {
+                if (strtolower(pathinfo($item->getPathname(), PATHINFO_EXTENSION)) === 'php') {
                     $this->parseFile($item->getPathname(), $input);
                 }
             }
